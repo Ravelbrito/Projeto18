@@ -1,0 +1,62 @@
+import mysql.connector
+from datetime import datetime
+
+class Estoque:
+    def __init__(self, host, usuario, senha, banco):
+        try:
+            # Tenta estabelecer a conexão com o banco de dados
+            self.conexao = mysql.connector.connect(
+                host=host,
+                user=usuario,
+                password=senha,
+                database=banco
+            )
+            self.cursor = self.conexao.cursor()
+            print("Conexão estabelecida com sucesso!")
+        except mysql.connector.Error as err:
+            print(f"Erro ao conectar ao banco de dados: {err}")
+            self.conexao = None
+            self.cursor = None
+
+    # Método para cadastrar um produto
+    def cadastrar_produto(self, nome, descricao, quantidade, preco):
+        if self.conexao is None or self.cursor is None:
+            print("Não é possível realizar a operação. Conexão com o banco de dados não estabelecida.")
+            return
+
+        try:
+            # Comando SQL para inserir um novo produto
+            query = "INSERT INTO produtos (Nome, Descricao, quantidade, preco) VALUES (%s, %s, %s, %s)"
+            valores = (nome, descricao, quantidade, preco)
+            self.cursor.execute(query, valores)
+            self.conexao.commit()
+            print(f'Produto "{nome}" cadastrado com sucesso!')
+        except mysql.connector.Error as err:
+            print(f"Erro ao cadastrar o produto: {err}")
+
+    # Fechar a conexão com o banco de dados
+    def fechar_conexao(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.conexao:
+            self.conexao.close()
+        print("Conexão fechada.")
+
+# Exemplo de uso da classe
+estoque = Estoque("sql812.main-hosting.eu", "u274908554_709A", "INbd709A", "u274908554_709A")
+
+# Cadastrar um produto
+estoque.cadastrar_produto("Produto A", "Descrição do Produto A", 100, 29.99)
+
+# Fechar a conexão
+estoque.fechar_conexao()
+
+
+# # Consultar todos os produtos
+# estoque.consultar_produtos()
+
+# # Registrar uma venda (produto_id = 1, quantidade_vendida = 10)
+# estoque.registrar_venda(1, 10)
+
+# # Consultar os produtos após a venda
+# estoque.consultar_produtos()
